@@ -21,7 +21,7 @@ const RU: Record<string, string> = {
   'Planning horizon': 'Горизонт планирования',
   'Changing the planning horizon…': 'Смена горизонта планирования…',
   'Could not change the planning horizon.': 'Не удалось изменить горизонт планирования.',
-  'Cells travelled': 'Пройдено клеток',
+  'Moves': 'Перемещения',
   'Turns': 'Поворотов',
   'Wait ticks': 'Тактов ожидания',
   'Single step': 'Один шаг',
