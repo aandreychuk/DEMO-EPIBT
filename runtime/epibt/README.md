@@ -35,11 +35,15 @@ measures time spent in the planner call.
 
 ## Configuration files
 
-Open **Edit map** to choose a preset or paint individual cells. The presets
-include rack rows, a central junction, single-cell aisles, staggered gates,
-switchback lanes with passing bays, and nested loops. Import and export work on the
-editor draft. **Apply & restart** starts the draft at tick zero and immediately
-runs the simulation.
+Choose a preset next to **Edit map**. The **Kiva warehouse** preset uses the
+obstacle, pickup endpoint and workstation positions of the GGO
+[warehouse-33-36 benchmark](https://github.com/lunjohnzhang/ggo_public/blob/9e3613e65cafcad1c552a1b647d0fbaa09e7cfa3/maps/warehouse/human/kiva_large_w_mode.json).
+The demo adds an outer wall and runs its own pickup and delivery tasks with
+56 agents.
+
+Open **Edit map** to paint individual cells or import and export the editor
+draft. **Apply & restart** starts the draft at tick zero and immediately runs
+the simulation.
 The same map and robot count produce the same starts, initial orientations
 and sequence of pickup and delivery pairs.
 

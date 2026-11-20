@@ -57,7 +57,7 @@ const RU: Record<string, string> = {
   'Receiving and shipping docks': 'Приёмка и отгрузка',
   'Warehouse with packing stations': 'Склад с зоной упаковки',
   'Two storage blocks': 'Два складских блока',
-  'Sortation center': 'Сортировочный центр',
+  'Kiva warehouse': 'Склад Kiva',
   'Paint cells': 'Тип клетки',
   'Obstacle': 'Препятствие',
   'Click or drag on the map to paint.': 'Нажмите на клетку или проведите по карте.',

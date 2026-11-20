@@ -89,19 +89,19 @@ function twoStorageBlocks(): WarehouseConfig {
   return warehouse(map, 80);
 }
 
-function sortationCenter(): WarehouseConfig {
-  const map = floor(42, 28);
-  // Infeed is on the west and south sides, with sorting lanes to the north and east.
-  for (const top of [6, 12, 18]) {
-    block(map, 8, top, 17, top + 1);
-    block(map, 22, top, 31, top + 1);
+function kivaWarehouse(): WarehouseConfig {
+  // GGO warehouse-33-36 geometry, with a one-cell border around the original floor.
+  const map = floor(38, 35);
+  for (const row of [3, 7, 11, 15, 19, 23, 27, 31]) {
+    for (const left of [3, 14, 25]) {
+      block(map, left, row, left + 9, row);
+      map[row - 1].fill('S', left, left + 10);
+      map[row + 1].fill('S', left, left + 10);
+    }
   }
-  for (const y of [4, 7, 10, 13, 16, 19, 22]) map[y][2] = 'S';
-  for (const x of [9, 13, 17, 21]) map[26][x] = 'S';
-  for (const x of [24, 27, 30, 33, 36]) map[1][x] = 'D';
-  for (const top of [3, 9, 15, 21]) {
-    block(map, 34, top, 35, top + 2);
-    map[top + 1][36] = 'D';
+  for (const row of [2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32]) {
+    map[row][1] = 'D';
+    map[row][36] = 'D';
   }
   return warehouse(map, 56);
 }
@@ -112,5 +112,5 @@ export const WAREHOUSE_PRESETS = [
   { id: 'cross-dock', name: 'Receiving and shipping docks', config: crossDock() },
   { id: 'packing-warehouse', name: 'Warehouse with packing stations', config: packingWarehouse() },
   { id: 'two-storage-blocks', name: 'Two storage blocks', config: twoStorageBlocks() },
-  { id: 'sortation-center', name: 'Sortation center', config: sortationCenter() },
+  { id: 'kiva-warehouse', name: 'Kiva warehouse', config: kivaWarehouse() },
 ];
