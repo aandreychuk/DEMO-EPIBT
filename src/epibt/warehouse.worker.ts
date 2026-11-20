@@ -28,16 +28,16 @@ let deliveries: number[] = [];
 let step = 0;
 let completed = 0;
 let nextTask = 0;
-let agents: Array<Agent & { dropoff: number }> = [];
+let agents: Agent[] = [];
 
-function assignTask(agent: Agent & { dropoff: number }): void {
+function assignTask(agent: Agent): void {
   const pickupIndex = nextTask % pickups.length;
-  const pickup = pickups[pickupIndex];
   const deliveryIndex = pickupIndex + Math.floor(nextTask / pickups.length);
-  agent.task = ++nextTask;
+  nextTask++;
+  agent.pickup = pickups[pickupIndex];
   agent.dropoff = deliveries[deliveryIndex % deliveries.length];
-  agent.stage = agent.cell === pickup ? 'Delivery' : 'Pickup';
-  agent.target = agent.stage === 'Pickup' ? pickup : agent.dropoff;
+  agent.stage = agent.cell === agent.pickup ? 'Delivery' : 'Pickup';
+  agent.target = agent.stage === 'Pickup' ? agent.pickup : agent.dropoff;
 }
 
 async function loadPlanner(length: OperationLength): Promise<Planner> {
@@ -76,9 +76,9 @@ async function configure(request: WarehouseConfig, length: OperationLength): Pro
   width = config.map[0].length;
   planner = await loadPlanner(length);
   agents = plan.starts.map((cell, index) => {
-    const agent: Agent & { dropoff: number } = {
-      cell, direction: index % 4, target: 0, task: 0, stage: 'Pickup',
-      operation: [], priority: null, completed: 0, distance: 0, turns: 0, waits: 0, dropoff: 0,
+    const agent: Agent = {
+      cell, direction: index % 4, target: 0, pickup: 0, dropoff: 0, stage: 'Pickup',
+      operation: [], priority: null, completed: 0, distance: 0, turns: 0, waits: 0,
     };
     assignTask(agent);
     return agent;

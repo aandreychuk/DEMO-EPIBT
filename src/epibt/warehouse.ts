@@ -4,7 +4,7 @@ import { fmt, formatCount, formatFixed, formatNumber, initI18n, tr } from '../i1
 import type { WarehouseConfig } from './config';
 import { LayoutEditor } from './editor';
 import { WarehouseMap } from './map';
-import { ACTIONS, ACTION_CODES, OPERATION_LENGTHS, type Action, type OperationLength, type Snapshot, type WorkerCommand, type WorkerReply } from './model';
+import { ACTIONS, OPERATION_LENGTHS, type Action, type OperationLength, type Snapshot, type WorkerCommand, type WorkerReply } from './model';
 import { WAREHOUSE_PRESETS } from './presets';
 
 function element<T extends HTMLElement = HTMLElement>(id: string): T {
@@ -24,8 +24,6 @@ const lengthButtons = OPERATION_LENGTHS.map(length => ({
   length, button: element<HTMLButtonElement>(`epibt-length-${length}`),
 }));
 const error = element('epibt-error');
-const operation = element('epibt-operation');
-const planActionLabels = ['Forward', 'Right', 'Left', 'Wait'] as const;
 const playbackRates = [
   1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
   20, 30, 40, 50, 60, 70, 80, 90, 100,
@@ -99,30 +97,16 @@ function renderInspector(): void {
   const agent = snapshot?.agents[selected];
   previousRobot.disabled = nextRobot.disabled = !agent || config.agentCount <= 1;
   setText('epibt-selected', fmt('Agent {id}', { id: String(selected + 1).padStart(3, '0') }));
-  setText('epibt-stage', agent ? tr(agent.stage) : '—');
   setText('epibt-position', agent ? coordinates(agent.cell) : '—');
   setText('epibt-heading', agent ? `${headingGlyphs[agent.direction]} ${tr(headingNames[agent.direction])}` : '—');
-  setText('epibt-task', agent ? formatNumber(agent.task) : '—');
-  setText('epibt-goal', agent ? coordinates(agent.target) : '—');
+  setText('epibt-task-pickup', agent ? coordinates(agent.pickup) : '—');
+  setText('epibt-task-delivery', agent ? coordinates(agent.dropoff) : '—');
   setText('epibt-action', actionLabel(agent?.lastAction));
   setText('epibt-priority', agent?.priority == null ? '—' : formatNumber(agent.priority));
   setText('epibt-distance', agent ? formatNumber(agent.distance) : '—');
   setText('epibt-turns', agent ? formatNumber(agent.turns) : '—');
   setText('epibt-waits', agent ? formatNumber(agent.waits) : '—');
   setText('epibt-agent-completed', agent ? formatNumber(agent.completed) : '—');
-
-  const entries = agent?.operation ?? [];
-  operation.replaceChildren(...Array.from({ length: operationLength }, (_, index) => {
-    const action = entries[index];
-    const item = document.createElement('li');
-    item.textContent = action === undefined ? '—' : tr(planActionLabels[action]);
-    if (action !== undefined) {
-      const description = actionLabel(action);
-      item.title = `${ACTION_CODES[action]} · ${description}`;
-      item.setAttribute('aria-label', description);
-    }
-    return item;
-  }));
 
   rows.forEach(({ row, button }, index) => {
     row.toggleAttribute('data-selected', index === selected);

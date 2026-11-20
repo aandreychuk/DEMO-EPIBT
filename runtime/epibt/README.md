@@ -7,9 +7,9 @@ selects an operation and executes its first primitive each tick. Use
 takes over at the same tick with the same robot poses, tasks and counters.
 The next tick generates a plan at the new length. A robot can move one
 cell forward, turn 90 degrees right or left in its cell, or wait. The
-inspector shows the executed primitive and the full
-operation selected in that tick. The dashed line shows the remaining moves of
-that operation. EPIBT may revise them at the next tick.
+inspector shows the pickup and delivery coordinates and the last executed
+action. The dashed line on the map shows the remaining moves of the selected
+operation. EPIBT may revise them at the next tick.
 
 The playback control sets a target of 1 to 1,000 steps per second. The
 slider increments are 1 up to 10, 10 up to 100, and 100 up to 1,000.

@@ -14,11 +14,8 @@ const RU: Record<string, string> = {
   'Completed deliveries': 'Доставок',
   'Planning, ms': 'Планирование, мс',
   'Heading': 'Ориентация',
-  'Task': 'Задача',
-  'Current goal': 'Текущая цель',
   'Last action': 'Последнее действие',
   'Planning priority': 'Приоритет при планировании',
-  'Last EPIBT operation': 'Последний план EPIBT',
   'Previous agent': 'Предыдущий агент',
   'Next agent': 'Следующий агент',
   'Planning horizon': 'Горизонт планирования',
@@ -31,7 +28,7 @@ const RU: Record<string, string> = {
   'Forward': 'Вперёд',
   'Turn right': 'Поворот вправо',
   'Turn left': 'Поворот влево',
-  'Delivery': 'Доставить',
+  'Delivery': 'Доставка',
   'East': 'восток',
   'South': 'юг',
   'West': 'запад',
@@ -79,7 +76,7 @@ const RU: Record<string, string> = {
   'QR code for the EPIBT implementation': 'QR-код реализации EPIBT',
   'QR code for the live demo': 'QR-код демо',
   'QR code for the paper': 'QR-код статьи',
-  'Pickup': 'Забрать',
+  'Pickup': 'Забор',
   'Position': 'Позиция',
   'Live telemetry': 'Телеметрия',
   'Throughput': 'Пропускная способность',
@@ -96,8 +93,6 @@ const RU: Record<string, string> = {
   'Speed': 'Скорость',
   'Agent {id}': 'Агент {id}',
   'Wait': 'Ожидать',
-  'Left': 'Влево',
-  'Right': 'Вправо',
 };
 
 const COUNT_FORMS = {

@@ -1,7 +1,6 @@
 import type { WarehouseConfig } from './config';
 
 export const ACTIONS = ['Forward', 'Turn right', 'Turn left', 'Wait'] as const;
-export const ACTION_CODES = ['F', 'R', 'L', 'W'] as const;
 export const OPERATION_LENGTHS = [3, 4, 5] as const;
 const ROTATION = [0, 1, 3, 0] as const;
 
@@ -19,7 +18,8 @@ export function nextPose(pose: Pose, action: Action, width: number): Pose {
 
 export type Agent = Pose & {
   target: number;
-  task: number;
+  pickup: number;
+  dropoff: number;
   stage: 'Pickup' | 'Delivery';
   lastAction?: Action;
   operation: Action[];
