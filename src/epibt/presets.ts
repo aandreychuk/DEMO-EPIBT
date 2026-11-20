@@ -1,21 +1,13 @@
 import { WAREHOUSE_SCHEMA, type Tile, type WarehouseConfig } from './config';
 
-function floor(width: number, height: number, interior: '.' | '#' = '.'): Tile[][] {
+function floor(width: number, height: number): Tile[][] {
   return Array.from({ length: height }, (_, y) => Array.from({ length: width }, (_, x) =>
-    x === 0 || y === 0 || x === width - 1 || y === height - 1 ? '#' : interior
+    x === 0 || y === 0 || x === width - 1 || y === height - 1 ? '#' : '.'
   ));
 }
 
-function paint(map: Tile[][], left: number, top: number, right: number, bottom: number, tile: Tile): void {
-  for (let y = top; y <= bottom; y++) map[y].fill(tile, left, right + 1);
-}
-
-function corridor(map: Tile[][], points: ReadonlyArray<readonly [number, number]>): void {
-  for (let index = 1; index < points.length; index++) {
-    const [x0, y0] = points[index - 1];
-    const [x1, y1] = points[index];
-    paint(map, Math.min(x0, x1), Math.min(y0, y1), Math.max(x0, x1), Math.max(y0, y1), '.');
-  }
+function block(map: Tile[][], left: number, top: number, right: number, bottom: number): void {
+  for (let y = top; y <= bottom; y++) map[y].fill('#', left, right + 1);
 }
 
 function warehouse(map: Tile[][], agentCount: number): WarehouseConfig {
@@ -24,14 +16,13 @@ function warehouse(map: Tile[][], agentCount: number): WarehouseConfig {
 
 function rackRows(): WarehouseConfig {
   const map = floor(44, 27);
-  for (const y of [4, 11, 18]) {
-    for (const x of [8, 14, 20, 26, 32, 38]) {
-      for (let row = y; row < y + 5; row++) {
-        map[row][x] = '#';
-        map[row][x + 1] = '#';
-      }
-      for (const dx of [-1, 2]) {
-        for (const dy of [1, 3]) map[y + dy][x + dx] = 'S';
+  // Two blocks of back-to-back racks open onto a cross aisle and the east docks.
+  for (const left of [6, 12, 18, 24, 30, 36]) {
+    for (const top of [3, 15]) {
+      block(map, left, top, left + 1, top + 8);
+      for (const y of [top + 1, top + 4, top + 7]) {
+        map[y][left - 1] = 'S';
+        map[y][left + 2] = 'S';
       }
     }
   }
@@ -39,98 +30,87 @@ function rackRows(): WarehouseConfig {
   return warehouse(map, 48);
 }
 
-function centralJunction(): WarehouseConfig {
-  const map = floor(31, 25);
-  for (const x of [4, 19]) {
-    for (const y of [4, 15]) {
-      for (let dx = 0; dx <= 7; dx++) {
-        map[y][x + dx] = '#';
-        map[y + 4][x + dx] = '#';
-      }
-      for (const dx of [1, 3, 5, 7]) map[y + 2][x + dx] = 'S';
+function narrowAisles(): WarehouseConfig {
+  const map = floor(32, 26);
+  // Racks are separated by one-cell aisles, with a wider approach to the docks.
+  for (const left of [2, 5, 8, 11, 14, 17, 20, 23, 26]) {
+    for (const top of [4, 11, 18]) {
+      block(map, left, top, left + 1, top + 4);
+      map[top + 1][left - 1] = 'S';
+      map[top + 3][left - 1] = 'S';
     }
   }
-  for (const x of [4, 8, 12, 18, 22, 26]) {
-    map[1][x] = 'D';
-    map[23][x] = 'D';
-  }
-  return warehouse(map, 32);
+  for (const x of [4, 8, 12, 16, 20, 24, 28]) map[24][x] = 'D';
+  return warehouse(map, 28);
 }
 
-function narrowAisles(): WarehouseConfig {
-  const map = floor(33, 24);
-  for (let x = 2; x <= 29; x += 3) {
-    // Two columns of racks, one column of aisle, with single-row cross aisles.
-    for (const top of [2, 9, 16]) paint(map, x, top, x + 1, top + 5, '#');
-    for (const y of [4, 11, 18]) map[y][x - 1] = 'S';
+function crossDock(): WarehouseConfig {
+  const map = floor(36, 22);
+  // Staging islands separate lanes between receiving and shipping docks.
+  for (const left of [8, 21]) {
+    for (const top of [4, 9, 14]) block(map, left, top, left + 6, top + 1);
   }
-  for (const x of [4, 10, 16, 22, 28]) {
-    map[1][x] = 'D';
-    map[22][x] = 'D';
-  }
-  return warehouse(map, 40);
-}
-
-function staggeredGates(): WarehouseConfig {
-  const map = floor(41, 25);
-  const walls = [
-    { x: 9, gates: [4, 16, 21] },
-    { x: 19, gates: [7, 13, 19] },
-    { x: 29, gates: [3, 11, 20] },
-  ];
-  for (const { x, gates } of walls) {
-    paint(map, x, 1, x + 2, 23, '#');
-    for (const y of gates) paint(map, x, y, x + 2, y, '.');
-  }
-  for (const [x, y] of [[3, 5], [3, 14], [14, 8], [14, 17], [24, 4], [24, 14], [34, 7], [34, 18]]) {
-    paint(map, x, y, x + 1, y + 2, '#');
-  }
-  for (const y of [2, 6, 10, 14, 18, 22]) {
-    map[y][1] = 'S';
-    map[y][39] = 'D';
-  }
+  for (const y of [3, 6, 9, 12, 15, 18]) map[y][2] = 'S';
+  for (const y of [2, 5, 8, 11, 14, 17, 19]) map[y][33] = 'D';
   return warehouse(map, 36);
 }
 
-function switchbackLanes(): WarehouseConfig {
-  const map = floor(40, 28, '#');
-  corridor(map, [[2, 4], [10, 4], [10, 2], [27, 2], [27, 4], [37, 4]]);
-  corridor(map, [[2, 12], [8, 12], [8, 8], [19, 8], [19, 11], [29, 11], [29, 9], [37, 9]]);
-  corridor(map, [[2, 18], [13, 18], [13, 15], [23, 15], [23, 19], [32, 19], [32, 16], [37, 16]]);
-  corridor(map, [[2, 25], [8, 25], [8, 22], [17, 22], [17, 25], [28, 25], [28, 23], [37, 23]]);
-  for (const [x, top, bottom] of [[2, 4, 25], [37, 4, 23], [15, 2, 8], [33, 4, 9],
-    [11, 8, 18], [20, 11, 25], [25, 11, 19], [16, 15, 22], [34, 16, 23]]) {
-    paint(map, x, top, x, bottom, '.');
+function packingWarehouse(): WarehouseConfig {
+  const map = floor(40, 26);
+  // Storage racks feed short banks of packing stations on the east side.
+  for (const top of [4, 9, 14, 19]) {
+    block(map, 3, top, 11, top + 1);
+    block(map, 14, top, 22, top + 1);
+    for (const x of [4, 8, 15, 19]) map[top + 2][x] = 'S';
   }
-  // Short passing bays next to the long, single-cell stretches.
-  for (const [left, y] of [[5, 5], [18, 1], [29, 5], [13, 9], [22, 12],
-    [5, 19], [17, 16], [27, 20], [4, 26], [22, 26], [30, 22]]) {
-    paint(map, left, y, left + 2, y, '.');
+  for (const left of [28, 34]) {
+    for (const top of [6, 12, 18]) {
+      block(map, left, top, left + 1, top + 2);
+      map[top][left + 2] = 'D';
+      map[top + 2][left + 2] = 'D';
+    }
   }
-  for (const y of [6, 10, 15, 20, 24]) map[y][2] = 'S';
-  for (const y of [5, 7, 10, 13, 18, 22]) map[y][37] = 'D';
-  return warehouse(map, 18);
+  return warehouse(map, 64);
 }
 
-function nestedLoops(): WarehouseConfig {
-  const map = floor(44, 31, '#');
-  for (const [left, top, right, bottom] of [[2, 2, 41, 28], [8, 7, 35, 23], [14, 12, 29, 18]]) {
-    corridor(map, [[left, top], [right, top], [right, bottom], [left, bottom], [left, top]]);
+function twoStorageBlocks(): WarehouseConfig {
+  const map = floor(46, 28);
+  // A central aisle serves two large storage blocks and docks at both ends.
+  for (const left of [4, 26]) {
+    for (const top of [5, 10, 15, 20]) {
+      block(map, left, top, left + 15, top + 1);
+      for (const offset of [2, 6, 10, 14]) map[top + 2][left + offset] = 'S';
+    }
   }
-  for (const [left, top, right, bottom] of [[12, 2, 12, 7], [28, 2, 28, 7], [2, 16, 8, 16],
-    [35, 13, 41, 13], [31, 23, 31, 28], [18, 7, 18, 12], [24, 18, 24, 23], [8, 14, 14, 14], [29, 16, 35, 16]]) {
-    paint(map, left, top, right, bottom, '.');
+  for (const x of [5, 9, 13, 17, 28, 32, 36, 40]) {
+    map[1][x] = 'D';
+    map[26][x] = 'D';
   }
-  for (const [x, y] of [[5, 2], [21, 2], [37, 2], [41, 8], [41, 24], [26, 28], [9, 28], [2, 21]]) map[y][x] = 'S';
-  for (const [x, y] of [[15, 12], [23, 12], [29, 14], [27, 18], [18, 18], [14, 16]]) map[y][x] = 'D';
-  return warehouse(map, 18);
+  return warehouse(map, 80);
+}
+
+function sortationCenter(): WarehouseConfig {
+  const map = floor(42, 28);
+  // Infeed is on the west and south sides, with sorting lanes to the north and east.
+  for (const top of [6, 12, 18]) {
+    block(map, 8, top, 17, top + 1);
+    block(map, 22, top, 31, top + 1);
+  }
+  for (const y of [4, 7, 10, 13, 16, 19, 22]) map[y][2] = 'S';
+  for (const x of [9, 13, 17, 21]) map[26][x] = 'S';
+  for (const x of [24, 27, 30, 33, 36]) map[1][x] = 'D';
+  for (const top of [3, 9, 15, 21]) {
+    block(map, 34, top, 35, top + 2);
+    map[top + 1][36] = 'D';
+  }
+  return warehouse(map, 56);
 }
 
 export const WAREHOUSE_PRESETS = [
-  { id: 'rack-rows', name: 'Rack rows', config: rackRows() },
-  { id: 'central-junction', name: 'Central junction', config: centralJunction() },
-  { id: 'narrow-aisles', name: 'Narrow aisles', config: narrowAisles() },
-  { id: 'staggered-gates', name: 'Staggered gates', config: staggeredGates() },
-  { id: 'switchback-lanes', name: 'Switchback lanes', config: switchbackLanes() },
-  { id: 'nested-loops', name: 'Nested loops', config: nestedLoops() },
+  { id: 'rack-rows', name: 'Rack warehouse', config: rackRows() },
+  { id: 'narrow-aisles', name: 'Warehouse with narrow aisles', config: narrowAisles() },
+  { id: 'cross-dock', name: 'Receiving and shipping docks', config: crossDock() },
+  { id: 'packing-warehouse', name: 'Warehouse with packing stations', config: packingWarehouse() },
+  { id: 'two-storage-blocks', name: 'Two storage blocks', config: twoStorageBlocks() },
+  { id: 'sortation-center', name: 'Sortation center', config: sortationCenter() },
 ];
