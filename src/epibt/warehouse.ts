@@ -17,6 +17,7 @@ const playButton = element<HTMLButtonElement>('epibt-play');
 const stepButton = element<HTMLButtonElement>('epibt-next');
 const speed = element<HTMLInputElement>('epibt-rate');
 const editButton = element<HTMLButtonElement>('epibt-open-editor');
+const presetSelect = element<HTMLSelectElement>('epibt-preset');
 const previousRobot = element<HTMLButtonElement>('epibt-prev-robot');
 const nextRobot = element<HTMLButtonElement>('epibt-next-robot');
 const fleetScroll = element('epibt-fleet-scroll');
@@ -220,6 +221,15 @@ function fail(message: string): void {
   renderError(message);
 }
 
+function renderPresets(): void {
+  const active = WAREHOUSE_PRESETS.find(({ config: preset }) =>
+    preset.agentCount === config.agentCount && preset.map.length === config.map.length &&
+    preset.map.every((row, index) => row === config.map[index])
+  );
+  presetSelect.replaceChildren(presetSelect.options[0], ...WAREHOUSE_PRESETS.map(({ id, name }) => new Option(tr(name), id)));
+  presetSelect.value = active?.id ?? '';
+}
+
 function start(next: WarehouseConfig, autoplay = false): void {
   worker?.terminate();
   operationLength = requestedLength ?? operationLength;
@@ -234,6 +244,7 @@ function start(next: WarehouseConfig, autoplay = false): void {
   schedule();
   renderError('');
   renderDimensions();
+  renderPresets();
   rebuildFleet();
   const instance = new Worker(new URL('./warehouse.worker.ts', import.meta.url), { type: 'module' });
   worker = instance;
@@ -285,7 +296,7 @@ function showEditor(editing: boolean): void {
   canvas.tabIndex = editing ? 0 : -1;
   document.querySelector('.epibt-app')?.toggleAttribute('data-editing', editing);
   element('epibt-editor').hidden = !editing;
-  for (const id of ['epibt-legend', 'epibt-insights', 'epibt-controls', 'epibt-length-control', 'epibt-open-editor']) {
+  for (const id of ['epibt-legend', 'epibt-insights', 'epibt-controls', 'epibt-length-control', 'epibt-map-actions']) {
     element(id).hidden = editing;
   }
   labelMap();
@@ -316,6 +327,11 @@ editButton.addEventListener('click', () => {
   editor.open(config);
   showEditor(true);
   element('epibt-editor-title').focus({ preventScroll: true });
+});
+
+presetSelect.addEventListener('change', () => {
+  const preset = WAREHOUSE_PRESETS.find(({ id }) => id === presetSelect.value);
+  if (preset && !editor.draft) start(preset.config, true);
 });
 
 playButton.addEventListener('click', () => {
@@ -350,6 +366,7 @@ canvas.addEventListener('pointerdown', (event) => {
 new ResizeObserver(draw).observe(canvas);
 
 window.addEventListener('demo:languagechange', () => {
+  renderPresets();
   renderSnapshot();
   renderError(errorText);
   labelMap();

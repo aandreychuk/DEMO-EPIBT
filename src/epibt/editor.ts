@@ -1,7 +1,6 @@
 import { tr } from '../i18n';
 import { MAX_AGENTS, MAX_CONFIG_BYTES, parseWarehouse, prepareWarehouse, type Point, type Tile, type WarehouseConfig } from './config';
 import type { WarehouseMap } from './map';
-import { WAREHOUSE_PRESETS } from './presets';
 
 function element<T extends HTMLElement>(id: string): T {
   return document.getElementById(id) as T;
@@ -11,7 +10,6 @@ export class LayoutEditor {
   draft: WarehouseConfig | null = null;
   cursor: Point | null = null;
 
-  private readonly presets = element<HTMLSelectElement>('epibt-preset');
   private readonly count = element<HTMLInputElement>('epibt-robot-count');
   private readonly file = element<HTMLInputElement>('epibt-file');
   private readonly error = element('epibt-file-error');
@@ -19,7 +17,6 @@ export class LayoutEditor {
   private readonly undoButton = element<HTMLButtonElement>('epibt-undo');
   private readonly applyButton = element<HTMLButtonElement>('epibt-apply');
   private readonly exportButton = element<HTMLButtonElement>('epibt-export');
-  private readonly options = WAREHOUSE_PRESETS.map(preset => new Option(preset.name, preset.id));
   private history: WarehouseConfig[] = [];
   private errorText = '';
   private loadVersion = 0;
@@ -33,12 +30,7 @@ export class LayoutEditor {
     private readonly onChange: () => void,
     private readonly onClose: (config?: WarehouseConfig) => void,
   ) {
-    this.presets.append(...this.options);
     this.count.max = String(MAX_AGENTS);
-    this.presets.addEventListener('change', () => {
-      const preset = WAREHOUSE_PRESETS.find(option => option.id === this.presets.value);
-      if (preset && this.draft) this.replace(preset.config);
-    });
     this.count.addEventListener('input', () => this.updateControls());
     this.count.addEventListener('change', () => {
       const config = this.readDraft();
@@ -134,9 +126,6 @@ export class LayoutEditor {
   }
 
   private localize(): void {
-    this.options.forEach((option, index) => {
-      option.textContent = tr(WAREHOUSE_PRESETS[index].name);
-    });
     this.showError(this.errorText);
     this.updateControls();
   }
@@ -214,11 +203,6 @@ export class LayoutEditor {
     if (!this.draft) return;
     const config = this.readDraft();
     const problem = this.mapProblem(config);
-    const preset = config && WAREHOUSE_PRESETS.find(({ config: ready }) =>
-      ready.agentCount === config.agentCount && ready.map.length === config.map.length &&
-      ready.map.every((row, index) => row === config.map[index])
-    );
-    this.presets.value = preset?.id ?? '';
     this.undoButton.disabled = this.history.length === 0;
     this.applyButton.disabled = !!problem;
     this.exportButton.disabled = !config;

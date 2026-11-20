@@ -54,7 +54,12 @@
                   <button id="epibt-length-5" class="epibt-button" type="button" aria-pressed="false" disabled>5</button>
                 </div>
               </div>
-              <button id="epibt-open-editor" class="epibt-button" type="button" aria-controls="epibt-editor">Edit map</button>
+              <div id="epibt-map-actions" class="epibt-map-actions">
+                <select id="epibt-preset" class="epibt-button" aria-label="Warehouse preset">
+                  <option value="" disabled>Custom layout</option>
+                </select>
+                <button id="epibt-open-editor" class="epibt-button" type="button" aria-controls="epibt-editor">Edit map</button>
+              </div>
             </div>
           </div>
           <p id="epibt-error" class="epibt-error" role="alert" hidden></p>
@@ -123,8 +128,6 @@
             <button id="epibt-undo" class="epibt-button" type="button">↶ Undo edit</button>
           </div>
           <div class="epibt-editor-config">
-            <label for="epibt-preset">Warehouse preset</label>
-            <select id="epibt-preset"><option value="" disabled>Custom layout</option></select>
             <label for="epibt-robot-count">Number of agents</label>
             <input id="epibt-robot-count" type="number" min="1" step="1" required />
             <div class="epibt-editor-files">
