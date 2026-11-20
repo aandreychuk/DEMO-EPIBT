@@ -39,7 +39,7 @@ Choose a preset next to **Edit map**. The **Kiva warehouse** preset uses the
 obstacle, pickup endpoint and workstation positions of the GGO
 [warehouse-33-36 benchmark](https://github.com/lunjohnzhang/ggo_public/blob/9e3613e65cafcad1c552a1b647d0fbaa09e7cfa3/maps/warehouse/human/kiva_large_w_mode.json).
 The demo adds an outer wall and runs its own pickup and delivery tasks with
-56 agents.
+200 agents.
 
 Open **Edit map** to paint individual cells or import and export the editor
 draft. **Apply & restart** starts the draft at tick zero and immediately runs

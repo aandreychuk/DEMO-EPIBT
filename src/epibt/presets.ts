@@ -103,7 +103,7 @@ function kivaWarehouse(): WarehouseConfig {
     map[row][1] = 'D';
     map[row][36] = 'D';
   }
-  return warehouse(map, 56);
+  return warehouse(map, 200);
 }
 
 export const WAREHOUSE_PRESETS = [
