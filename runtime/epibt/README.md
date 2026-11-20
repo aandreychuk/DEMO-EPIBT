@@ -43,7 +43,8 @@ The demo adds an outer wall and runs its own pickup and delivery tasks with
 
 Open **Edit map** to paint individual cells or import and export the editor
 draft. **Apply & restart** starts the draft at tick zero and immediately runs
-the simulation.
+the simulation. The worker shuffles the pickup and delivery bays separately
+and assigns each bay once per pass through its list.
 The same map and robot count produce the same starts, initial orientations
 and sequence of pickup and delivery pairs.
 
